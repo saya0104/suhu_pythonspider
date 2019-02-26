@@ -1,0 +1,1 @@
+{"bank_r": 0, "province_r": 0, "city_r": 0}

@@ -1,0 +1,41 @@
+create table reporate(
+	FV bigint(20) NOT NULL COMMENT 'FV',
+	FT bigint(20) NOT NULL COMMENT 'FT',
+	F1 char(10) COLLATE utf8_bin NOT NULL COMMENT '品种',
+	F2 bigint(14) NOT NULL COMMENT '价格日期',
+	F3 decimal(8,6) not null comment '回购定盘利率',
+	FP bigint(14) DEFAULT NULL COMMENT '发布时间',
+	FU bigint(14) DEFAULT NULL COMMENT '更新时间',
+	PRIMARY KEY (`FT`) USING BTREE,
+  	UNIQUE KEY `reporate_IDX_1` (`F1`,`F2`) USING BTREE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='回购定盘利率'
+
+create table forwardrate(
+	FV bigint(20) NOT NULL COMMENT 'FV',
+	FT bigint(20) NOT NULL COMMENT 'FT',
+	F1 char(20) COLLATE utf8_bin NOT NULL COMMENT '品种',
+	F2 bigint(14) NOT NULL COMMENT '价格日期',
+	F3 bigint(14) NOT NULL COMMENT '远期日期',
+	F4 decimal(8,6) not null comment '基准指标远期利率',
+	FP bigint(14) DEFAULT NULL COMMENT '发布时间',
+	FU bigint(14) DEFAULT NULL COMMENT '更新时间',
+	PRIMARY KEY (`FT`) USING BTREE,
+  	UNIQUE KEY `reporate_IDX_1` (`F1`,`F2`,`F3`) USING BTREE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='基准指标远期利率'
+
+
+CREATE TABLE `swaprate` (
+  `FV` bigint(20) NOT NULL COMMENT 'FV',
+  `FT` bigint(20) NOT NULL COMMENT 'FT',
+  `F1` bigint(14) NOT NULL COMMENT '价格日期',
+  `F2` char(50) COLLATE utf8_bin NOT NULL COMMENT '曲线名称',
+  `F3` char(10) COLLATE utf8_bin NOT NULL COMMENT '价格类型',
+  `F4` char(10) COLLATE utf8_bin NOT NULL COMMENT '期限类型',
+  `F5` decimal(8,6) DEFAULT NULL COMMENT '利率',
+  `FP` bigint(14) DEFAULT NULL COMMENT '发布时间',
+  `FU` bigint(14) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`FT`) USING BTREE,
+  UNIQUE KEY `swaprate_IDX_1` (`F1`,`F2`,`F3`,`F4`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='利率互换定盘收盘曲线'
+
+

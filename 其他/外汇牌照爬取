@@ -1,0 +1,129 @@
+import time
+import requests
+from bs4 import BeautifulSoup as bs
+import xlwt
+import random
+
+excel=xlwt.Workbook(encoding='utf-8')
+sheet1=excel.add_sheet('s',cell_overwrite_ok=True)
+excel_title=['时间', '币种','银行', '买入现汇', '买入现钞', '卖出现汇', '卖出现钞', '折算价']
+row_num=0
+for x in range(len(excel_title)):
+	sheet1.write(0,x,excel_title[x])
+
+headers={
+'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+'Accept-Encoding':'gzip, deflate',
+'Accept-Language':'zh-CN,zh;q=0.8',
+'Connection':'keep-alive',
+'Host':'www.kuaiyilicai.com',
+'Upgrade-Insecure-Requests':'1',
+'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36'
+}
+
+###函数
+def date_range(start,end):
+	import pandas as pd
+	import datetime
+	date_term=[]
+	dt_index=pd.date_range(start=start,end=end,freq='D')
+	dt=dt_index.to_pydatetime()
+	for x in dt:
+		date_term.append(x.strftime('%Y-%m-%d'))
+	return date_term
+def get_html(url,headers):
+	r=requests.get(url,headers)
+	r.encoding=r.apparent_encoding
+	if r.status_code != 200:
+		print('获取页面失败')
+	else:
+		return(r.text)
+
+###货币种类
+currency_dict={
+'hkd':'港币',
+'mop':'澳门元',
+'twd':'新台币',
+'sgd':'新加坡',
+'jpy':'日元',
+'thb':'泰国铢',
+'php':'菲律宾比索',
+'krw':'韩国元',
+'myr':'马来西亚元',
+'vnd':'越南盾',
+'idr':'印尼盾',
+'inr':'印度卢比',
+'sar':'沙特亚儿',
+'eur':'欧元',
+'gbp':'英镑',
+'chf':'瑞士法郎',
+'sek':'瑞典克朗',
+'dkk':'丹麦克朗',
+'nok':'挪威克朗',
+'rub':'卢布',
+'usd':'美元',
+'cad':'加拿大元',
+'brl':'巴西雷亚尔',
+'mxn':'墨西哥比索',
+'aud':'澳大利亚元',
+'nzd':'新西兰元',
+'zar':'南非兰特'
+}
+currency_list=list(currency_dict.keys())
+###生成爬取url列表
+date_term=date_range('20170901','20170914')
+url_main='http://www.kuaiyilicai.com/huilv/c-%s.html?querydate=%s'
+
+
+for date in date_term:
+	for curtype in currency_list:
+		url=url_main%(curtype,date)
+		html=get_html(url,headers=headers)
+		soup = bs(html, 'lxml')
+		table = soup.find_all('table', attrs={'class': 'table text-nowrap', 'id': 'bank_rate'})[0]
+		tr_list = table.find_all('tr')[2:]
+		for tr in tr_list:
+			row_num += 1
+			value_list = []
+
+			td_list = tr.find_all('td')
+
+			time1 = td_list[6].text.replace('&nbsp;', '')
+			value_list.append(time1)
+
+			value_list.append(currency_dict[curtype])
+
+			bank = td_list[0].text.replace('&nbsp;', '')
+			value_list.append(bank)
+
+			buyin_ex = td_list[1].text.replace('&nbsp;', '')
+			value_list.append(buyin_ex)
+
+			buyin_cur = td_list[2].text.replace('&nbsp;', '')
+			value_list.append(buyin_cur)
+
+			sell_ex = td_list[3].text.replace('&nbsp;', '')
+			value_list.append(sell_ex)
+
+			sell_cur = td_list[4].text.replace('&nbsp;', '')
+			value_list.append(sell_cur)
+
+			middle = td_list[5].text.replace('&nbsp;', '')
+			value_list.append(middle)
+
+			for x in range(8):
+				sheet1.write(row_num, x, value_list[x])
+		print('正在抓取[日期：%s][货币种类：%s]...' % (date, currency_dict[curtype]))
+		sleep_time = random.randint(1, 5) + random.random()
+		#time.sleep(sleep_time)
+
+
+excel.save(r'd:\银行外汇牌价.xls')
+
+
+
+
+
+
+
+
